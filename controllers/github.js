@@ -8,6 +8,7 @@ const jwt = require('jwt-simple')
 
 let testRes
 let detailUserArray
+let shortListedUsers
 
 
 const pagingationURLs = function(response){
@@ -35,7 +36,7 @@ const pagingationURLs = function(response){
 }
 
 const apiDeets = function(userObj, callback){
-    console.log(userObj)
+    // console.log(userObj)
     const getUrl = 'https://api.github.com/users/'+ userObj.login +'?access_token='+ process.env.githubAccessToken
     axios.get(getUrl)
         .then(response =>{
@@ -45,6 +46,7 @@ const apiDeets = function(userObj, callback){
 
 const done = function(error, results) {
     // console.log("lll", results)
+    console.log("shortListed :", shortListedUsers)
     testRes.send(detailUserArray.concat(results))
 }
 
@@ -55,10 +57,22 @@ exports.gitHubApp = function (req, response) {
 exports.searchGithub = function (req, res) {
     const language = req.headers.language;
     const location = req.headers.location;
-    detailUserArray = [];
+    detailUserArray = []
+    shortListedUsers = []
     testRes = res
     axios.get('https://api.github.com/search/users?q=+language:' + language + '+location:' + location)
         .then(response => {
+            response.data.items.map(function(user){
+                // User.findOne({shortList: shortListSchema :{githubId: user.id}}).then(shortListedUsers.push(user.id))
+               User.findOne({'shortList.githubId': user.id}, {'shortList.$': 1},
+                    function (err, shortListed) {
+                        if (shortListed) {
+                            console.log("foudn user", user.id)
+                           shortListedUsers.push(user.id)
+                        }
+                    }
+                )
+            })
             pagingationURLs(response)
             async.map(response.data.items, apiDeets, done);
         });
@@ -82,7 +96,7 @@ exports.addToShortList = function (req, res) {
     var decodedToken = jwt.decode(token, process.env.appSecret)
     User.findOne({linkedinId: decodedToken.sub}, function (err, existingUser) {
         if (err || !existingUser) return res.redirect(302, '/')
-        console.log("existinguser", req.body)
+        // console.log("existinguser", req.body)
         User.findOneAndUpdate({linkedinId:existingUser.linkedinId},
             {$addToSet: {shortList: req.body}},
             function(err,data) {
