@@ -8,7 +8,8 @@ const jwt = require('jwt-simple')
 
 let testRes
 let detailUserArray
-let shortListedUsers
+let shortListedUsers =[]
+let userCount = 0
 
 
 const pagingationURLs = function(response){
@@ -40,14 +41,16 @@ const apiDeets = function(userObj, callback){
     const getUrl = 'https://api.github.com/users/'+ userObj.login +'?access_token='+ process.env.githubAccessToken
     axios.get(getUrl)
         .then(response =>{
-            callback(null,response.data);
+            callback(null,response.data, userCount);
         });
 }
 
-const done = function(error, results) {
-    // console.log("lll", results)
-    console.log("shortListed :", shortListedUsers)
-    testRes.send(detailUserArray.concat(results))
+const done = function(error, results, userCount) {
+    console.log("length :", results.length, "count :", userCount.length)
+
+    // if(userCount.length === results.length) {
+        testRes.send({githubUsers: detailUserArray.concat(results), shortListed: shortListedUsers})
+    // }
 }
 
 exports.gitHubApp = function (req, response) {
@@ -59,10 +62,17 @@ exports.searchGithub = function (req, res) {
     const location = req.headers.location;
     detailUserArray = []
     shortListedUsers = []
+    userCount = 0
+
+    //user to count checking for shorlist
+    shortListCount = 0
     testRes = res
     axios.get('https://api.github.com/search/users?q=+language:' + language + '+location:' + location)
         .then(response => {
             response.data.items.map(function(user){
+                userCount = userCount + 1
+                console.log("userCount", userCount)
+
                 // User.findOne({shortList: shortListSchema :{githubId: user.id}}).then(shortListedUsers.push(user.id))
                User.findOne({'shortList.githubId': user.id}, {'shortList.$': 1},
                     function (err, shortListed) {
@@ -70,8 +80,10 @@ exports.searchGithub = function (req, res) {
                             console.log("foudn user", user.id)
                            shortListedUsers.push(user.id)
                         }
+
                     }
                 )
+
             })
             pagingationURLs(response)
             async.map(response.data.items, apiDeets, done);
