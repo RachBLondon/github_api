@@ -41,16 +41,24 @@ const apiDeets = function(userObj, callback){
     const getUrl = 'https://api.github.com/users/'+ userObj.login +'?access_token='+ process.env.githubAccessToken
     axios.get(getUrl)
         .then(response =>{
-            callback(null,response.data, userCount);
+            callback(null,response.data);
         });
 }
 
-const done = function(error, results, userCount) {
-    console.log("length :", results.length, "count :", userCount.length)
+function checkForShortList(users, shortlistedUsers){
+    users.map(user =>{
+        if(shortlistedUsers.indexOf(user.id)> -1) {
+            return user.shortlisted = true;
+        }
+    })
+    return users
+}
 
-    // if(userCount.length === results.length) {
-        testRes.send({githubUsers: detailUserArray.concat(results), shortListed: shortListedUsers})
-    // }
+const done = function(error, results) {
+
+        const updatedUsers = checkForShortList(results, shortListedUsers)
+        testRes.send(detailUserArray.concat(updatedUsers))
+
 }
 
 exports.gitHubApp = function (req, response) {
@@ -71,13 +79,13 @@ exports.searchGithub = function (req, res) {
         .then(response => {
             response.data.items.map(function(user){
                 userCount = userCount + 1
-                console.log("userCount", userCount)
+                // console.log("userCount", userCount)
 
                 // User.findOne({shortList: shortListSchema :{githubId: user.id}}).then(shortListedUsers.push(user.id))
                User.findOne({'shortList.githubId': user.id}, {'shortList.$': 1},
                     function (err, shortListed) {
                         if (shortListed) {
-                            console.log("foudn user", user.id)
+                            // console.log("foudn user", user.id)
                            shortListedUsers.push(user.id)
                         }
 
