@@ -8,6 +8,8 @@ const jwt = require('jwt-simple')
 
 let testRes
 let detailUserArray
+let shortListedUsers =[]
+let userCount = 0
 
 
 const pagingationURLs = function(response){
@@ -35,6 +37,7 @@ const pagingationURLs = function(response){
 }
 
 const apiDeets = function(userObj, callback){
+    // console.log(userObj)
     const getUrl = 'https://api.github.com/users/'+ userObj.login +'?access_token='+ process.env.githubAccessToken
     axios.get(getUrl)
         .then(response =>{
@@ -42,9 +45,20 @@ const apiDeets = function(userObj, callback){
         });
 }
 
+function checkForShortList(users, shortlistedUsers){
+    users.map(user =>{
+        if(shortlistedUsers.indexOf(user.id)> -1) {
+            return user.shortlisted = true;
+        }
+    })
+    return users
+}
+
 const done = function(error, results) {
-    // console.log("lll", results)
-    testRes.send(detailUserArray.concat(results))
+
+        const updatedUsers = checkForShortList(results, shortListedUsers)
+        testRes.send(detailUserArray.concat(updatedUsers))
+
 }
 
 exports.gitHubApp = function (req, response) {
@@ -54,10 +68,31 @@ exports.gitHubApp = function (req, response) {
 exports.searchGithub = function (req, res) {
     const language = req.headers.language;
     const location = req.headers.location;
-    detailUserArray = [];
+    detailUserArray = []
+    shortListedUsers = []
+    userCount = 0
+
+    //user to count checking for shorlist
+    shortListCount = 0
     testRes = res
     axios.get('https://api.github.com/search/users?q=+language:' + language + '+location:' + location)
         .then(response => {
+            response.data.items.map(function(user){
+                userCount = userCount + 1
+                // console.log("userCount", userCount)
+
+                // User.findOne({shortList: shortListSchema :{githubId: user.id}}).then(shortListedUsers.push(user.id))
+               User.findOne({'shortList.githubId': user.id}, {'shortList.$': 1},
+                    function (err, shortListed) {
+                        if (shortListed) {
+                            // console.log("foudn user", user.id)
+                           shortListedUsers.push(user.id)
+                        }
+
+                    }
+                )
+
+            })
             pagingationURLs(response)
             async.map(response.data.items, apiDeets, done);
         });
@@ -81,7 +116,7 @@ exports.addToShortList = function (req, res) {
     var decodedToken = jwt.decode(token, process.env.appSecret)
     User.findOne({linkedinId: decodedToken.sub}, function (err, existingUser) {
         if (err || !existingUser) return res.redirect(302, '/')
-        console.log("existinguser", req.body)
+        // console.log("existinguser", req.body)
         User.findOneAndUpdate({linkedinId:existingUser.linkedinId},
             {$addToSet: {shortList: req.body}},
             function(err,data) {

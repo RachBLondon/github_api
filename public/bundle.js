@@ -28798,6 +28798,7 @@
 	var SET_LOCATION_LANG = exports.SET_LOCATION_LANG = 'set_location_lang';
 	var SHOW_SHORTLIST = exports.SHOW_SHORTLIST = 'show_shortlist';
 	var LOAD_PROFILE = exports.LOAD_PROFILE = 'load_profile';
+	var ADD_TO_SHORTLIST_IN_CLIENT = exports.ADD_TO_SHORTLIST_IN_CLIENT = 'add_to_short_list_in_client';
 
 /***/ },
 /* 266 */
@@ -28965,6 +28966,7 @@
 	exports.fetchPagination = fetchPagination;
 	exports.addToShortlist = addToShortlist;
 	exports.getShortList = getShortList;
+	exports.getProfile = getProfile;
 
 	var _axios = __webpack_require__(269);
 
@@ -29025,12 +29027,17 @@
 
 	function addToShortlist(user) {
 	    return function (dispatch) {
+
 	        _axios2.default.post("/addToShortList", {
 	            userName: user.login,
 	            email: user.email,
 	            githubId: user.id
 	        }).then(function (response) {
 	            //TODO notify user of success
+	            dispatch({
+	                type: _types.ADD_TO_SHORTLIST_IN_CLIENT,
+	                githubId: user.id
+	            });
 	            console.log(response);
 	        }).catch(function (error) {
 	            //TODO notify user of error
@@ -29049,6 +29056,19 @@
 	        }).catch(function (error) {
 	            //TODO notify user of error
 	            console.log(error);
+	        });
+	    };
+	}
+
+	function getProfile() {
+	    return function (dispatch) {
+	        _axios2.default.get('/getprofile').then(function (response) {
+	            dispatch({
+	                type: _types.LOAD_PROFILE,
+	                payload: response.data
+	            });
+
+	            console.log(response);
 	        });
 	    };
 	}
@@ -48228,18 +48248,29 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	  value: true
+	    value: true
 	});
 
 	exports.default = function () {
-	  var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-	  var action = arguments[1];
+	    var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	    var action = arguments[1];
 
-	  switch (action.type) {
-	    case _types.SHOW_USER_DATA:
-	      return action.payload;
-	  }
-	  return state;
+	    console.log('action', action);
+	    switch (action.type) {
+	        case _types.SHOW_USER_DATA:
+	            return action.payload;
+	        case _types.ADD_TO_SHORTLIST_IN_CLIENT:
+	            var newState = Object.assign([], state);
+	            newState.map(function (user) {
+	                if (user.id === action.githubId) {
+	                    return user.shortlist = true;
+	                }
+	            });
+	            return newState;
+
+	            return;
+	    }
+	    return state;
 	};
 
 	var _types = __webpack_require__(265);
