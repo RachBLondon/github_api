@@ -28880,6 +28880,8 @@
 
 	var _reactRedux = __webpack_require__(175);
 
+	var _host_url = __webpack_require__(287);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -28900,6 +28902,7 @@
 	    _createClass(Header, [{
 	        key: 'render',
 	        value: function render() {
+	            var logoutUrl = _host_url.ROOT_URL + '/logout';
 	            return _react2.default.createElement(
 	                'nav',
 	                { className: 'navbar navbar-light' },
@@ -28911,7 +28914,7 @@
 	                        { className: 'nav-item' },
 	                        _react2.default.createElement(
 	                            'a',
-	                            { href: 'http://localhost:5000/logout' },
+	                            { href: logoutUrl },
 	                            ' Sign Out'
 	                        )
 	                    ),
