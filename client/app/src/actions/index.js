@@ -4,7 +4,8 @@ import {
     SHOW_USER_DATA,
     SET_LOCATION_LANG,
     SHOW_SHORTLIST,
-    LOAD_PROFILE
+    LOAD_PROFILE,
+    ADD_TO_SHORTLIST_IN_CLIENT
 } from './types'
 import {ROOT_URL} from './../constants/host_url'
 
@@ -57,12 +58,17 @@ export function fetchPagination(data) {
 
 export function addToShortlist(user) {
     return function (dispatch) {
+
         axios.post("/addToShortList", {
             userName: user.login,
             email: user.email,
             githubId:user.id
         }).then(function (response) {
             //TODO notify user of success
+            dispatch({
+                type: ADD_TO_SHORTLIST_IN_CLIENT,
+                githubId :user.id
+            })
             console.log(response)
         }).catch(function (error) {
             //TODO notify user of error
@@ -94,8 +100,6 @@ export function getProfile(){
                     type: LOAD_PROFILE,
                     payload : response.data
                 })
-
-                console.log(response)
             })
     }
 }

@@ -3,7 +3,6 @@ import React, {Component} from 'react'
 export default class ShortList extends Component {
     buildShortList(users) {
         return users.map(function (user, i) {
-            console.log("user", user)
            return( <tr key={i}>
                         <td>{user.userName}</td>
                         <td>{user.email}</td>

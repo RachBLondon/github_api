@@ -29,7 +29,6 @@ export default function configureStore(initialState){
   const store = configureStore({});
 
 
-console.log("window", window, "hows", window.location.hostname)
   ReactDOM.render(
     <Provider store={store}>
       <Router history={browserHistory}>
