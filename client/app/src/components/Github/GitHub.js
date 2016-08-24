@@ -41,6 +41,7 @@ class GitHub extends Component {
                     divStyle={divStyle}
                     user={user}
                     repos={user.public_repos}
+                    shortlisted={user.shortlisted}
                 />
             )
         });

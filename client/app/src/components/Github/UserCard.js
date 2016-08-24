@@ -7,8 +7,12 @@ class UserCard extends Component {
         this.props.addToShortList(user)
     }
 
+    renderButton(){
+
+    }
+
     render(){
-        // console.log(this.props)
+        console.log("props in user card", this.props)
         return(<div>
             <div  className="col-md-4  c-user_cell" style={this.props.divStyle}>
                 <div className="row">
@@ -21,7 +25,7 @@ class UserCard extends Component {
                     <div className="col-xs-6">
                         <p>Follwers : {this.props.user.followers}</p>
                         <p>Repos : {this.props.user.repos}</p>
-                        <button onClick={this.handleClick.bind( this, this.props.user)} className="btn btn-default" type="submit">Add to short list</button>
+                        {this.props.shortlisted ? null: <button onClick={this.handleClick.bind( this, this.props.user)} className="btn btn-default" type="submit">Add to short list</button>}
                     </div>
                 </div>
             </div>

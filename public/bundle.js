@@ -104,7 +104,6 @@
 
 	var store = configureStore({});
 
-	console.log("window", window, "hows", window.location.hostname);
 	_reactDom2.default.render(_react2.default.createElement(
 	  _reactRedux.Provider,
 	  { store: store },
@@ -28881,6 +28880,8 @@
 
 	var _reactRedux = __webpack_require__(175);
 
+	var _host_url = __webpack_require__(287);
+
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -28901,6 +28902,7 @@
 	    _createClass(Header, [{
 	        key: 'render',
 	        value: function render() {
+	            var logoutUrl = _host_url.ROOT_URL + '/logout';
 	            return _react2.default.createElement(
 	                'nav',
 	                { className: 'navbar navbar-light' },
@@ -28912,7 +28914,7 @@
 	                        { className: 'nav-item' },
 	                        _react2.default.createElement(
 	                            'a',
-	                            { href: 'http://localhost:5000/logout' },
+	                            { href: logoutUrl },
 	                            ' Sign Out'
 	                        )
 	                    ),
@@ -29067,8 +29069,6 @@
 	                type: _types.LOAD_PROFILE,
 	                payload: response.data
 	            });
-
-	            console.log(response);
 	        });
 	    };
 	}
@@ -44446,7 +44446,8 @@
 	                    textColor: textColor,
 	                    divStyle: divStyle,
 	                    user: user,
-	                    repos: user.public_repos
+	                    repos: user.public_repos,
+	                    shortlisted: user.shortlisted
 	                });
 	            });
 	        }
@@ -47677,9 +47678,12 @@
 	            this.props.addToShortList(user);
 	        }
 	    }, {
+	        key: 'renderButton',
+	        value: function renderButton() {}
+	    }, {
 	        key: 'render',
 	        value: function render() {
-	            // console.log(this.props)
+	            console.log("props in user card", this.props);
 	            return _react2.default.createElement(
 	                'div',
 	                null,
@@ -47726,7 +47730,7 @@
 	                                'Repos : ',
 	                                this.props.user.repos
 	                            ),
-	                            _react2.default.createElement(
+	                            this.props.shortlisted ? null : _react2.default.createElement(
 	                                'button',
 	                                { onClick: this.handleClick.bind(this, this.props.user), className: 'btn btn-default', type: 'submit' },
 	                                'Add to short list'
@@ -47985,7 +47989,6 @@
 	        key: "buildShortList",
 	        value: function buildShortList(users) {
 	            return users.map(function (user, i) {
-	                console.log("user", user);
 	                return _react2.default.createElement(
 	                    "tr",
 	                    { key: i },
@@ -48248,29 +48251,28 @@
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
-	    value: true
+	  value: true
 	});
 
 	exports.default = function () {
-	    var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-	    var action = arguments[1];
+	  var state = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+	  var action = arguments[1];
 
-	    console.log('action', action);
-	    switch (action.type) {
-	        case _types.SHOW_USER_DATA:
-	            return action.payload;
-	        case _types.ADD_TO_SHORTLIST_IN_CLIENT:
-	            var newState = Object.assign([], state);
-	            newState.map(function (user) {
-	                if (user.id === action.githubId) {
-	                    return user.shortlist = true;
-	                }
-	            });
-	            return newState;
+	  switch (action.type) {
+	    case _types.SHOW_USER_DATA:
+	      return action.payload;
+	    case _types.ADD_TO_SHORTLIST_IN_CLIENT:
+	      var newState = Object.assign([], state);
+	      newState.map(function (user) {
+	        if (user.id === action.githubId) {
+	          return user.shortlist = true;
+	        }
+	      });
+	      return newState;
 
-	            return;
-	    }
-	    return state;
+	      return;
+	  }
+	  return state;
 	};
 
 	var _types = __webpack_require__(265);
