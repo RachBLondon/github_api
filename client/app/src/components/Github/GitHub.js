@@ -22,12 +22,12 @@ class GitHub extends Component {
         return this.props.usersDetails.length === 30 ? <Pager pagination={actions.fetchPagination} paginationCall={this.props.fetchPagination} pages={this.props.pagination.links} /> : null;
     }
 
-    showUsers(){
+    showUsers(userdetails){
 
         let count = 0;
-        return this.props.usersDetails.map(user =>{
+        return userdetails.map(user =>{
             const displayUserName = user.name ? user.name : user.login;
-            const hireStatus = user.hireable? "fa fa-check-circle": "fa fa-times"
+            const hireStatus = user.hireable ? "fa fa-check-circle": "fa fa-times"
             const textColor = colors.black
             const divStyle = {backgroundColor : colorScheme[count%5], color : textColor}
             count ++;
@@ -41,14 +41,12 @@ class GitHub extends Component {
                     divStyle={divStyle}
                     user={user}
                     repos={user.public_repos}
-                    shortlisted={user.shortlisted}
                 />
             )
         });
     }
 
     render() {
-
         const { handleSubmit , fields :{ language, location }} = this.props;
 
         return (
@@ -67,7 +65,7 @@ class GitHub extends Component {
                 </form>
                 {this.pagingation()}
                 <div className="row">
-                    {this.showUsers()}
+                    {this.showUsers(this.props.usersDetails)}
                 </div>
                 {this.pagingation()}
             </div>

@@ -44428,11 +44428,11 @@
 	        }
 	    }, {
 	        key: 'showUsers',
-	        value: function showUsers() {
+	        value: function showUsers(userdetails) {
 	            var _this2 = this;
 
 	            var count = 0;
-	            return this.props.usersDetails.map(function (user) {
+	            return userdetails.map(function (user) {
 	                var displayUserName = user.name ? user.name : user.login;
 	                var hireStatus = user.hireable ? "fa fa-check-circle" : "fa fa-times";
 	                var textColor = _colors_blue.colors.black;
@@ -44446,14 +44446,14 @@
 	                    textColor: textColor,
 	                    divStyle: divStyle,
 	                    user: user,
-	                    repos: user.public_repos,
-	                    shortlisted: user.shortlisted
+	                    repos: user.public_repos
 	                });
 	            });
 	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
+	            console.log("github render", this.props);
 	            var _props = this.props;
 	            var handleSubmit = _props.handleSubmit;
 	            var _props$fields = _props.fields;
@@ -44497,7 +44497,7 @@
 	                _react2.default.createElement(
 	                    'div',
 	                    { className: 'row' },
-	                    this.showUsers()
+	                    this.showUsers(this.props.usersDetails)
 	                ),
 	                this.pagingation()
 	            );
@@ -47678,12 +47678,20 @@
 	            this.props.addToShortList(user);
 	        }
 	    }, {
-	        key: 'renderButton',
-	        value: function renderButton() {}
+	        key: 'handleShortList',
+	        value: function handleShortList(shortlisted) {
+	            if (!shortlisted) {
+	                return _react2.default.createElement(
+	                    'button',
+	                    { onClick: this.handleClick.bind(this, this.props.user), className: 'btn btn-default', type: 'submit' },
+	                    'Add to short list'
+	                );
+	            }
+	        }
 	    }, {
 	        key: 'render',
 	        value: function render() {
-	            console.log("props in user card", this.props);
+	            console.log("render usercard props", this.props);
 	            return _react2.default.createElement(
 	                'div',
 	                null,
@@ -47728,13 +47736,9 @@
 	                                'p',
 	                                null,
 	                                'Repos : ',
-	                                this.props.user.repos
+	                                this.props.user.public_repos
 	                            ),
-	                            this.props.shortlisted ? null : _react2.default.createElement(
-	                                'button',
-	                                { onClick: this.handleClick.bind(this, this.props.user), className: 'btn btn-default', type: 'submit' },
-	                                'Add to short list'
-	                            )
+	                            this.handleShortList(this.props.user.shortlist)
 	                        )
 	                    )
 	                )
